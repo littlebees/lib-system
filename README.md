@@ -1,24 +1,10 @@
 # README
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+## TODO Ver1
+1. finish the busness logic of ticket & copy
+2. write a test for both of them
+3. add controll access (cancancan)
 
-Things you may want to cover:
-
-* Ruby version
-
-* System dependencies
-
-* Configuration
-
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
+## TODO Ver2
+1. Add frontend framework
+2. Finish Ver2 functions, and update this TODO
