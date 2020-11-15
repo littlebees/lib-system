@@ -10,7 +10,19 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_15_141035) do
+ActiveRecord::Schema.define(version: 2020_11_15_143247) do
+
+  create_table "books", force: :cascade do |t|
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "copies", force: :cascade do |t|
+    t.integer "book_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["book_id"], name: "index_copies_on_book_id"
+  end
 
   create_table "librarians", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -37,4 +49,5 @@ ActiveRecord::Schema.define(version: 2020_11_15_141035) do
     t.index ["role_type", "role_id"], name: "index_users_on_role_type_and_role_id"
   end
 
+  add_foreign_key "copies", "books"
 end
