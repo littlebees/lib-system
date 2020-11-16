@@ -1,0 +1,19 @@
+version: '3.1'
+
+services:
+  db:
+    image: mariadb
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: mypw
+      MYSQL_DATABASE: mydb
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    # https://docs.docker.com/compose/compose-file/compose-file-v2/#links
+    # Unknown MySQL server host 'db' (-2)
+    #links:
+    #  - db
