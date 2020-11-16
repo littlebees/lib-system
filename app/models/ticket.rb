@@ -5,35 +5,36 @@ class Ticket < ApplicationRecord
 
   aasm column: 'ticket_state' do
     state :pending, inital: true
-    state :lend_ticket, :reserve_ticket
-    state :recording, :out_of_reserved_date
+    state :approved
+    state :recording
 
-    event :lend_this_book do
-      before do
+    event :approve do
+      after do 
         # set due_date
+        set_due_date
       end
-      transitions from: :pending, to: :lend_ticket
+      transitions from: :pending, to: :approved
     end
 
-    event :reserve_this_book do
-      before do
-        # set due_date
-      end
-      transitions from: :pending, to: :reserve_ticket
+    event :archive do
+      transitions from: :approved, to: :recording
     end
 
     event :get_lent_book do
-      before do
-        # set return date
-      end
-      transitions from: :lend_ticket, to: :recording
-    end
-
-    event :take_reserved_book do
-      before do
+      after do
         # set due_date
+        set_return_date
+        self.archive
       end
-      transitions from: :reserve_ticket, to: :lend_ticket
+      transitions from: :approved, to: :approved
     end
+  end
+
+  def set_due_date
+    fail NotImplementedError, "subclass should implement this method!"
+  end
+
+  def set_return_date
+    return_date = DateTime.now
   end
 end

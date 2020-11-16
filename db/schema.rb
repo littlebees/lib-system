@@ -39,7 +39,9 @@ ActiveRecord::Schema.define(version: 2020_11_15_164921) do
     t.integer "reader_id", null: false
     t.integer "copy_id", null: false
     t.datetime "due_date"
+    t.datetime "return_date"
     t.string "ticket_state"
+    t.string "type"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["copy_id"], name: "index_tickets_on_copy_id"

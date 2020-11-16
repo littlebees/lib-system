@@ -1,7 +1,8 @@
 class Copy < ApplicationRecord
   include AASM
   belongs_to :book
-  has_many :readers
+  has_many :tickets
+  has_many :waiting_readers, :through => :tickets, :source => :readers
 
   aasm column: 'copy_state' do
     state :on_shelf, inital: true
@@ -19,45 +20,57 @@ class Copy < ApplicationRecord
     end
 
     event :borrow_this_book do
-      before do
+      after do |args|
         # generate a ticket
-        # generate take lent
+        t = Lending.create copy: args[:copy], reader: args[:reader]
       end
       transitions from: [:on_shelf, :read_by_someone], to: :waiting_for_approvment
     end
 
     event :take_reserved_book do
-      before do
-        # generate a ticket
-        # generate take resv
+      after do |args|
+        t = Reservation.current_active_reservation
+        t.type = "Lending"
+        t.approve
       end
-      transitions from: :reserved, to: :waiting_for_approvment
+      transitions from: :reserved, to: :waiting_for_approvment, gurad: ->(args) do
+        Reservation.where(:copy => id).where(:reader => args[:reader].id) == Reservation.current_active_reservation
+      end
     end
 
     event :lend_this_book do
-      before do
-        # change ticket status
+      after do |args|
+        t = Lending.pending.where(:copy => id).where(:reader => args[:reader].id).limit(1)[0]
+        t.approve
       end
       transitions from: :waiting_for_approvment, to: :lent
     end
 
     event :mark_over_due do
-      before do
-        # change ticket status
+      after do |args|
+        t = tickets.approved.where(:type => "Lending").includes(:reader).limit(1)[0]
+        t.reader.over_due_cb(:copy => self)
       end
       transitions from: :lent, to: :over_due
     end
 
     event :mark_lost do
-      before do
-        # change ticket status
+      after do
+        wtf = tickets.approved.where(:type => "Lending").includes(:reader).limit(1)[0]
+        wtf.reader.lost_cb(:copy => self)
+
+        ts = tickets.pending
+        ts do |t|
+          t.archive
+        end
       end
       transitions from: [:on_shelf, :lent, :over_due], to: :lost
     end
 
     event :get_lent_book do
-      before do
-        # change ticket status
+      after do
+        t = Lending.approved.where(:copy => id).limit(1)[0]
+        t.get_lent_book
       end
       transitions from: [:lent, :over_due], to: :waiting_to_be_classified
     end
@@ -67,6 +80,10 @@ class Copy < ApplicationRecord
     end
 
     event :keep_for_reservation do
+      after do
+        t = Reservation.current_active_reservation
+        t.reader.inform_reservation_book_arrived(:copy => self)
+      end
       transitions from: :waiting_to_be_classified, to: :reserved
     end
   end
