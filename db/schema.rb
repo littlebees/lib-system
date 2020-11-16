@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_15_143247) do
+ActiveRecord::Schema.define(version: 2020_11_15_164921) do
 
   create_table "books", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -21,6 +21,7 @@ ActiveRecord::Schema.define(version: 2020_11_15_143247) do
     t.integer "book_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+    t.string "copy_state"
     t.index ["book_id"], name: "index_copies_on_book_id"
   end
 
@@ -32,6 +33,17 @@ ActiveRecord::Schema.define(version: 2020_11_15_143247) do
   create_table "readers", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.integer "reader_id", null: false
+    t.integer "copy_id", null: false
+    t.datetime "due_date"
+    t.string "ticket_state"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["copy_id"], name: "index_tickets_on_copy_id"
+    t.index ["reader_id"], name: "index_tickets_on_reader_id"
   end
 
   create_table "users", force: :cascade do |t|
@@ -50,4 +62,6 @@ ActiveRecord::Schema.define(version: 2020_11_15_143247) do
   end
 
   add_foreign_key "copies", "books"
+  add_foreign_key "tickets", "copies"
+  add_foreign_key "tickets", "readers"
 end
