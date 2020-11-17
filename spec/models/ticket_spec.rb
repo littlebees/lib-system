@@ -52,12 +52,14 @@ RSpec.describe Ticket, type: :model do
       context "approve" do
         before(:each) { @t = Ticket.new ticket_state: "pending" }
         it "change state: pending => approved" do
+          allow(@t).to receive(:set_due_date)
           expect(@t).to transition_from(:pending).to(:approved).on_event(:approve)
         end
         it "set due date" do
-          allow(@t).to receive(:set_due_date) { @t.due_date = DateTime.new }
+          now = DateTime.now
+          allow(@t).to receive(:set_due_date) { @t.due_date = now }
           @t.approve
-          expect(@t.due_date).to eq(DateTime.now)
+          expect(@t.due_date).to eq(now)
         end
       end
 
@@ -75,7 +77,7 @@ RSpec.describe Ticket, type: :model do
         end
         it "set return date" do
           @t.get_lent_book
-          expect(@t.return_date).to eq(DateTime.now)
+          expect(@t.return_date).not_to be_falsey
         end
       end
     end
@@ -85,13 +87,13 @@ RSpec.describe Ticket, type: :model do
     # set_due_date
     it "set_due_date should be implemented by child class" do
       t = Ticket.new
-      expect { t.set_due_date }.to raise_error
+      expect { t.set_due_date }.to raise_error(NotImplementedError)
     end
     # set_return_date
-    it "set_return_date should set return_date to Today" do
+    it "set_return_date should set return_date" do
       t = Ticket.new
       t.set_return_date
-      expect(t).to eq(DateTime.new)
+      expect(t.return_date).not_to be_falsey
     end
   end
 end

@@ -1,6 +1,5 @@
 class Lending < Ticket
   def set_due_date
-    due_date = DataTime.now.days_ago(30)
+    self.due_date = DateTime.now + 30
   end
-
 end

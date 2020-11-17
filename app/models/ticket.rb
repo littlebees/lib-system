@@ -35,6 +35,6 @@ class Ticket < ApplicationRecord
   end
 
   def set_return_date
-    return_date = DateTime.now
+    self.return_date = DateTime.now
   end
 end
