@@ -20,6 +20,7 @@ RSpec.describe Reservation, type: :model do
     it "set_due_date: due_date > today" do
       r = Reservation.new
       r.set_due_date
+      # TODO: use utc to compare time
       expect(r.due_date.utc).to be > DateTime.now.utc
     end
   end
