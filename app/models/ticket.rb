@@ -24,9 +24,8 @@ class Ticket < ApplicationRecord
       after do
         # set due_date
         set_return_date
-        self.archive
       end
-      transitions from: :approved, to: :approved
+      transitions from: :approved, to: :recording
     end
   end
 

@@ -20,7 +20,11 @@ RSpec.describe Ticket, type: :model do
         end
 
         it "allow transition to: approved" do
-          expect(@t).to allow_transition_to(:approved)
+          all_states = @t.aasm.states.map(&:name)
+          allow = [:approved]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@t).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
         end
       end
 
@@ -33,7 +37,11 @@ RSpec.describe Ticket, type: :model do
         end
 
         it "allow transition to: recording" do
-          expect(@t).to allow_transition_to(:recording)
+          all_states = @t.aasm.states.map(&:name)
+          allow = [:recording]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@t).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
         end
       end
 
@@ -41,9 +49,11 @@ RSpec.describe Ticket, type: :model do
         before(:each) { @t = Ticket.new ticket_state: "recording" }
 
         it "sink state" do
-          expect(@t).not_to allow_transition_to(:recording)
-          expect(@t).not_to allow_transition_to(:approved)
-          expect(@t).not_to allow_transition_to(:pending)
+          all_states = @t.aasm.states.map(&:name)
+          allow = []
+          not_allow = all_states - allow
+          allow.each { |s| expect(@t).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
         end
       end
     end
