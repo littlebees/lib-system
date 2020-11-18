@@ -2,7 +2,6 @@ class Copy < ApplicationRecord
   include AASM
   belongs_to :book
   has_many :tickets
-  has_many :waiting_readers, :through => :tickets, :source => :readers
 
   aasm column: 'copy_state' do
     state :on_shelf, inital: true
@@ -34,7 +33,7 @@ class Copy < ApplicationRecord
         t.approve
       end
       transitions from: :reserved, to: :waiting_for_approvment, gurad: ->(args) do
-        Reservation.where(:copy => id).where(:reader => args[:reader].id) == Reservation.current_active_reservation
+        Reservation.where(:copy => id).where(:reader => args[:reader].id).first == Reservation.current_active_reservation
       end
     end
 
