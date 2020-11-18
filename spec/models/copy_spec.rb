@@ -14,42 +14,132 @@ RSpec.describe Copy, type: :model do
 
     describe "state" do
       context "on_shelf" do
-        it "allow event: take_this_book, borrow_this_book"
-        it "allow transition to: read_by_someone, waiting_for_approvment, lost"
+        before do
+          @c = Copy.new copy_state: "on_shelf"
+        end
+        it "allow event: take_this_book, borrow_this_book" do
+          expect(@c).to allow_event(:take_this_book)
+          expect(@c).to allow_event(:borrow_this_book)
+        end
+        it "allow transition to: read_by_someone, waiting_for_approvment, lost" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:read_by_someone, :waiting_for_approvment, :lost]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "read_by_someone" do
-        it "allow event: put_it_back_to_shelf, borrow_this_book"
-        it "allow transition to: on_shelf, waiting_for_approvment"
+        before do
+          @c = Copy.new copy_state: "read_by_someone"
+        end
+        it "allow event: put_it_back_to_shelf, borrow_this_book" do
+          expect(@c).to allow_event(:put_it_back_to_shelf)
+          expect(@c).to allow_event(:borrow_this_book)
+        end
+        it "allow transition to: on_shelf, waiting_for_approvment" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:waiting_for_approvment, :on_shelf]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "reserved" do
-        it "allow event: take_reserved_book"
-        it "allow transition to: waiting_for_approvment"
+        before do
+          @c = Copy.new copy_state: "reserved"
+        end
+        it "allow event: take_reserved_book" do
+          expect(@c).to allow_event(:take_reserved_book)
+        end
+        it "allow transition to: waiting_for_approvment" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:waiting_for_approvment]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "waiting_for_approvment" do
-        it "allow event: lend_this_book"
-        it "allow transition to: lent"
+        before do
+          @c = Copy.new copy_state: "waiting_for_approvment"
+        end
+        it "allow event: lend_this_book" do
+          expect(@c).to allow_event(:lend_this_book)
+        end
+
+        it "allow transition to: lent" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:lent]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "lent" do
-        it "allow event: mark_over_due, mark_lost, get_lent_book"
-        it "allow transition to: over_due, lost, waiting_to_be_classified"
+        before do
+          @c = Copy.new copy_state: "lent"
+        end
+        it "allow event: mark_over_due, mark_lost, get_lent_book" do
+          expect(@c).to allow_event(:mark_over_due)
+          expect(@c).to allow_event(:mark_lost)
+          expect(@c).to allow_event(:get_lent_book)
+        end
+        it "allow transition to: over_due, lost, waiting_to_be_classified" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:lost, :waiting_to_be_classified, :over_due]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "waiting_to_be_classified" do
-        it "allow event: put_this_book_onto_shelf, keep_for_reservation"
-        it "allow transition to: on_shelf, reserved"
+        before do
+          @c = Copy.new copy_state: "waiting_to_be_classified"
+        end
+        it "allow event: put_this_book_onto_shelf, keep_for_reservation" do
+          expect(@c).to allow_event(:put_this_book_onto_shelf)
+          expect(@c).to allow_event(:keep_for_reservation)
+        end
+        it "allow transition to: on_shelf, reserved" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:on_shelf, :reserved]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "over_due" do
-        it "allow event: get_lent_book, mark_lost"
-        it "allow transition to: waiting_for_approvment, lost"
+        before do
+          @c = Copy.new copy_state: "over_due"
+        end
+        it "allow event: get_lent_book, mark_lost" do
+          expect(@c).to allow_event(:get_lent_book)
+          expect(@c).to allow_event(:mark_lost)
+        end
+        it "allow transition to: waiting_to_be_classified, lost" do
+          all_states = @c.aasm.states.map(&:name)
+          allow = [:lost, :waiting_to_be_classified]
+          not_allow = all_states - allow
+          allow.each { |s| expect(@c).to allow_transition_to(s) }
+          not_allow.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
 
       context "lost" do
-        it "sink state"
+        before do
+          @c = Copy.new copy_state: "lost"
+        end
+        it "sink state" do
+          all_states = @c.aasm.states.map(&:name)
+          all_states.each { |s| expect(@c).not_to allow_transition_to(s) }
+        end
       end
     end
 
