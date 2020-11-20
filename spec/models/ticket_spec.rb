@@ -1,5 +1,6 @@
 require 'rails_helper'
 
+
 RSpec.describe Ticket, type: :model do
   describe "association" do
     it { should belong_to(:reader) }
@@ -13,48 +14,29 @@ RSpec.describe Ticket, type: :model do
     end
     describe "state" do
       context "Pending" do
-        before(:each) { @t = Ticket.new }
-        
-        it "allow event: approve" do
-          expect(@t).to allow_event(:approve)
-        end
+        subject { Ticket.new }
 
-        it "allow transition to: approved" do
-          all_states = @t.aasm.states.map(&:name)
-          allow = [:approved]
-          not_allow = all_states - allow
-          allow.each { |s| expect(@t).to allow_transition_to(s) }
-          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
-        end
+        include_examples "all allowed events", [:approve]
+
+        include_examples "all allowed states", [:approved]
       end
 
       context "Approved" do
-        before(:each) { @t = Ticket.new ticket_state: "approved" }
+        subject { Ticket.new ticket_state: "approved" }
         
-        it "allow event: achrive, get_lent_book" do
-          expect(@t).to allow_event(:archive)
-          expect(@t).to allow_event(:get_lent_book)
-        end
+        include_examples "all allowed events", [:archive, :get_lent_book]
 
-        it "allow transition to: recording" do
-          all_states = @t.aasm.states.map(&:name)
-          allow = [:recording]
-          not_allow = all_states - allow
-          allow.each { |s| expect(@t).to allow_transition_to(s) }
-          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
-        end
+        include_examples "all allowed states", [:recording]
       end
 
       context "Recording" do
-        before(:each) { @t = Ticket.new ticket_state: "recording" }
+        subject { Ticket.new ticket_state: "recording" }
 
-        it "sink state" do
-          all_states = @t.aasm.states.map(&:name)
-          allow = []
-          not_allow = all_states - allow
-          allow.each { |s| expect(@t).to allow_transition_to(s) }
-          not_allow.each { |s| expect(@t).not_to allow_transition_to(s) }
-        end
+        # if i only use expect(subject).to allow_event
+        # i cant test this case!!
+        include_examples "all allowed events", []
+
+        include_examples "all allowed states", []
       end
     end
 

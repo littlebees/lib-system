@@ -69,3 +69,21 @@ Shoulda::Matchers.configure do |config|
       with.library :rails
     end
 end
+
+RSpec.shared_examples 'all allowed states' do |allow|
+  desc = allow.empty? ? 'sink state' : 'allow states: '+allow.to_s
+  it desc do 
+      all_states = subject.aasm.states.map(&:name)
+      not_allow = all_states - allow
+      allow.each { |s| expect(subject).to allow_transition_to(s) }
+      not_allow.each { |s| expect(subject).not_to allow_transition_to(s) }
+   end
+end 
+
+RSpec.shared_examples 'all allowed events' do |allow|
+  desc = 'allow events: '+allow.to_s
+  it desc do 
+      all_events = subject.aasm.events.map(&:name)
+      expect(all_events).to match_array(allow)
+   end
+end 
