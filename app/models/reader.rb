@@ -5,11 +5,14 @@ class Reader < ApplicationRecord
 
   def over_due_cb(args)
     # args[:copy]
+    args[:debug] = :reached
   end
   def lost_cb(args)
     # args[:copy]
+    args[:debug] = :reached
   end
   def inform_reservation_book_arrived(args)
     # args[:copy]
+    args[:debug] = :reached
   end
 end

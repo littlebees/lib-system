@@ -1,5 +1,7 @@
 class Copy < ApplicationRecord
   include AASM
+  my_method = self.method(:method)
+  # TODO: add rollback whene after
   belongs_to :book
   has_many :tickets
 
@@ -19,59 +21,33 @@ class Copy < ApplicationRecord
     end
 
     event :borrow_this_book do
-      after do |args|
-        # generate a ticket
-        t = Lending.create copy: args[:copy], reader: args[:reader]
-      end
       transitions from: [:on_shelf, :read_by_someone], to: :waiting_for_approvment
+      after ->(args={}) { self.borrow_this_book_after_cb(args) }
     end
 
-    event :take_reserved_book do
-      after do |args|
-        t = Reservation.current_active_reservation
-        t.type = "Lending"
-        t.approve
-      end
-      transitions from: :reserved, to: :waiting_for_approvment, gurad: ->(args) do
-        Reservation.where(:copy => id).where(:reader => args[:reader].id).first == Reservation.current_active_reservation
-      end
+    event :take_reserved_book, guards:[:can_take_this_reserved_book] do
+      transitions from: :reserved, to: :waiting_for_approvment
+      after ->(args={}) { self.take_reserved_book_after_cb(args) }
     end
 
     event :lend_this_book do
-      after do |args|
-        t = Lending.pending.where(:copy => id).where(:reader => args[:reader].id).limit(1)[0]
-        t.approve
-      end
       transitions from: :waiting_for_approvment, to: :lent
+      after ->(args={}) { self.lend_this_book_after_cb(args) }
     end
 
     event :mark_over_due do
-      after do |args|
-        t = tickets.approved.where(:type => "Lending").includes(:reader).limit(1)[0]
-        t.reader.over_due_cb(:copy => self)
-      end
       transitions from: :lent, to: :over_due
+      after ->(args={}) { self.mark_over_due_after_cb(args) }
     end
 
     event :mark_lost do
-      after do
-        wtf = tickets.approved.where(:type => "Lending").includes(:reader).limit(1)[0]
-        wtf.reader.lost_cb(:copy => self)
-
-        ts = tickets.pending
-        ts do |t|
-          t.archive
-        end
-      end
       transitions from: [:on_shelf, :lent, :over_due], to: :lost
+      after ->(args={}) { self.mark_lost_after_cb(args) }
     end
 
     event :get_lent_book do
-      after do
-        t = Lending.approved.where(:copy => id).limit(1)[0]
-        t.get_lent_book
-      end
       transitions from: [:lent, :over_due], to: :waiting_to_be_classified
+      after ->(args={}) { self.get_lent_book_after_cb(args) }
     end
 
     event :put_this_book_onto_shelf do
@@ -79,12 +55,55 @@ class Copy < ApplicationRecord
     end
 
     event :keep_for_reservation do
-      after do
-        t = Reservation.current_active_reservation
-        t.reader.inform_reservation_book_arrived(:copy => self)
-      end
       transitions from: :waiting_to_be_classified, to: :reserved
+      after ->(args={}) { self.keep_for_reservation_after_cb(args) }
     end
   end
 
+  def can_take_this_reserved_book(args={})
+    !args.empty? and Reservation.current_active_reservation(self).reader == args[:reader]
+  end
+  
+  def borrow_this_book_after_cb(args)
+    Lending.create! copy: self, reader: args[:reader]
+  end
+
+  def get_lent_book_after_cb(args)
+    t = tickets.approved.first
+    t.get_lent_book!
+  end
+
+  def keep_for_reservation_after_cb(args)
+    args[:copy] = self
+    t = Reservation.current_active_reservation(self)
+    t.reader.inform_reservation_book_arrived(args)
+  end
+
+  def mark_lost_after_cb(args)
+    wtf = tickets.approved.where(:type => "Lending").includes(:reader).first
+    args[:copy] = self
+    wtf.reader.lost_cb(args) if wtf
+
+    ts = tickets
+    ts.each do |t|
+      t.archive!
+    end
+  end
+
+  def mark_over_due_after_cb(args)
+    t = tickets.approved.where(:type => "Lending").includes(:reader).first
+    args[:copy] = self
+    t.reader.over_due_cb(args)
+  end
+
+  def take_reserved_book_after_cb(args)
+    t = Reservation.current_active_reservation(self)
+    t.type = "Lending"
+    t.approve!
+  end
+
+  def lend_this_book_after_cb(args)
+    t = Lending.pending.where(copy: self).where(reader: args[:reader]).first
+    t.approve!
+  end
 end

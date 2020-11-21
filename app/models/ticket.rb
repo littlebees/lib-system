@@ -17,7 +17,7 @@ class Ticket < ApplicationRecord
     end
 
     event :archive do
-      transitions from: :approved, to: :recording
+      transitions from: [:approved, :pending], to: :recording
     end
 
     event :get_lent_book do

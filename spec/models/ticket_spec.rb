@@ -57,8 +57,9 @@ RSpec.describe Ticket, type: :model do
 
       context "archive" do
         before(:each) { @t = Ticket.new ticket_state: "approved" }
-        it "change state: approved => recording" do
+        it "change state: [approved, pending] => recording" do
           expect(@t).to transition_from(:approved).to(:recording).on_event(:archive)
+          expect(@t).to transition_from(:pending).to(:recording).on_event(:archive)
         end
       end
 

@@ -87,3 +87,8 @@ RSpec.shared_examples 'all allowed events' do |allow|
       expect(all_events).to match_array(allow)
    end
 end 
+
+def expect_event(klass)
+  c = klass.new
+  return ->(cond) { expect(c).to cond }
+end
