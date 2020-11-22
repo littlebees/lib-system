@@ -10,7 +10,6 @@ class Ticket < ApplicationRecord
 
     event :approve do
       after do 
-        # set due_date
         set_due_date
       end
       transitions from: :pending, to: :approved
@@ -22,13 +21,13 @@ class Ticket < ApplicationRecord
 
     event :get_lent_book do
       after do
-        # set due_date
         set_return_date
       end
       transitions from: :approved, to: :recording
     end
   end
 
+private
   def set_due_date
     fail NotImplementedError, "subclass should implement this method!"
   end

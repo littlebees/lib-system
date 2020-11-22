@@ -59,7 +59,8 @@ class Copy < ApplicationRecord
       after ->(args={}) { self.keep_for_reservation_after_cb(args) }
     end
   end
-
+  
+private
   def can_take_this_reserved_book(args={})
     !args.empty? and Reservation.current_active_reservation(self).reader == args[:reader]
   end
