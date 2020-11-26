@@ -8,7 +8,7 @@ class Copy < ApplicationRecord
   aasm column: 'copy_state' do
     state :on_shelf, inital: true
     state :read_by_someone, :reserved
-    state :waiting_for_approvment
+    state :waiting_for_approvment, :returning
     state :lent, :lost, :over_due
     state :waiting_to_be_classified
 
@@ -20,16 +20,17 @@ class Copy < ApplicationRecord
       transitions from: :read_by_someone, to: :on_shelf
     end
 
+    # args[:reader]
     event :borrow_this_book do
       transitions from: [:on_shelf, :read_by_someone], to: :waiting_for_approvment
       after ->(args={}) { self.borrow_this_book_after_cb(args) }
     end
-
+    # args[:reader]
     event :take_reserved_book, guards:[:can_take_this_reserved_book] do
       transitions from: :reserved, to: :waiting_for_approvment
       after ->(args={}) { self.take_reserved_book_after_cb(args) }
     end
-
+    # args[:reader]
     event :lend_this_book do
       transitions from: :waiting_for_approvment, to: :lent
       after ->(args={}) { self.lend_this_book_after_cb(args) }
@@ -45,8 +46,12 @@ class Copy < ApplicationRecord
       after ->(args={}) { self.mark_lost_after_cb(args) }
     end
 
+    event :return_this_book do
+      transitions from: [:lent, :over_due], to: :returning
+    end
+
     event :get_lent_book do
-      transitions from: [:lent, :over_due], to: :waiting_to_be_classified
+      transitions from: :returning, to: :waiting_to_be_classified
       after ->(args={}) { self.get_lent_book_after_cb(args) }
     end
 

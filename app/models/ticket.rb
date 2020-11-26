@@ -11,6 +11,7 @@ class Ticket < ApplicationRecord
     event :approve do
       after do 
         set_due_date
+        self.save
       end
       transitions from: :pending, to: :approved
     end
@@ -22,6 +23,7 @@ class Ticket < ApplicationRecord
     event :get_lent_book do
       after do
         set_return_date
+        self.save
       end
       transitions from: :approved, to: :recording
     end

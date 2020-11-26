@@ -5,3 +5,11 @@
 #
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
+Reader.create.create_user email: "a@a.com", password: "12345678"
+Reader.create.create_user email: "b@a.com", password: "12345678"
+
+Librarian.create.create_user email: "l@a.com", password: "12345678"
+
+b = Book.create
+4.times { |_| b.copies.create }
+

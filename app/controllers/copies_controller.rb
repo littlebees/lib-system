@@ -1,26 +1,5 @@
 class CopiesController < ApplicationController
   before_action :set_copy, only: [:show, :update, :destroy]
-
-  def read
-
-  end
-
-  def reserve
-
-  end
-
-  def borrow
-
-  end
-
-  def take_reserved
-
-  end
-
-  def return_it
-
-  end
-
   # GET /copies
   def index
     @copies = Copy.all
