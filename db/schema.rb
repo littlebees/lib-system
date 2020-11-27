@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_11_15_164921) do
+ActiveRecord::Schema.define(version: 2020_11_27_160849) do
 
   create_table "books", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
@@ -23,6 +23,12 @@ ActiveRecord::Schema.define(version: 2020_11_15_164921) do
     t.datetime "updated_at", precision: 6, null: false
     t.string "copy_state"
     t.index ["book_id"], name: "index_copies_on_book_id"
+  end
+
+  create_table "jwt_blacklists", force: :cascade do |t|
+    t.string "jti", null: false
+    t.datetime "exp", null: false
+    t.index ["jti"], name: "index_jwt_blacklists_on_jti"
   end
 
   create_table "librarians", force: :cascade do |t|

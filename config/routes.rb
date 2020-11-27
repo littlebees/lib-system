@@ -1,8 +1,5 @@
 Rails.application.routes.draw do
-  #devise_for :users
-  post '/login' => 'users#login'
-  get '/logout' => 'users#logout'
-
+  devise_for :users, defaults: { format: :json }, controllers: { sessions: 'users' }
   resources :books do
     resources :copies
   end

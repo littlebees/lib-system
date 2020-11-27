@@ -4,6 +4,7 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 ruby '2.7.0'
 
 gem "devise"
+gem 'devise-jwt'
 gem "aasm"
 gem 'after_commit_everywhere', '~> 0.1', '>= 0.1.5'
 
