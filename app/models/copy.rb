@@ -71,12 +71,16 @@ private
   end
   
   def borrow_this_book_after_cb(args)
-    Lending.create! copy: self, reader: args[:reader]
+    rollback_state do
+      Lending.create! copy: self, reader: args[:reader]
+    end
   end
 
   def get_lent_book_after_cb(args)
-    t = tickets.approved.first
-    t.get_lent_book!
+    rollback_state do
+      t = tickets.approved.first
+      t.get_lent_book!
+    end
   end
 
   def keep_for_reservation_after_cb(args)
@@ -86,13 +90,15 @@ private
   end
 
   def mark_lost_after_cb(args)
-    wtf = tickets.approved.where(:type => "Lending").includes(:reader).first
-    args[:copy] = self
-    wtf.reader.lost_cb(args) if wtf
+    rollback_state do
+      wtf = tickets.approved.where(:type => "Lending").includes(:reader).first
+      args[:copy] = self
+      wtf.reader.lost_cb(args) if wtf
 
-    ts = tickets
-    ts.each do |t|
-      t.archive!
+      ts = tickets
+      ts.each do |t|
+        t.archive!
+      end
     end
   end
 
@@ -103,13 +109,17 @@ private
   end
 
   def take_reserved_book_after_cb(args)
-    t = Reservation.current_active_reservation(self)
-    t.type = "Lending"
-    t.approve!
+    rollback_state do
+      t = Reservation.current_active_reservation(self)
+      t.type = "Lending"
+      t.approve!
+    end
   end
 
   def lend_this_book_after_cb(args)
-    t = Lending.pending.where(copy: self).where(reader: args[:reader]).first
-    t.approve!
+    rollback_state do
+      t = Lending.pending.where(copy: self).where(reader: args[:reader]).first
+      t.approve!
+    end
   end
 end

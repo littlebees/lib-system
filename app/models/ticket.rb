@@ -9,9 +9,11 @@ class Ticket < ApplicationRecord
     state :recording
 
     event :approve do
-      after do 
-        set_due_date
-        self.save
+      after do
+        rollback_state do
+          set_due_date
+          self.save
+        end
       end
       transitions from: :pending, to: :approved
     end
@@ -22,8 +24,10 @@ class Ticket < ApplicationRecord
 
     event :get_lent_book do
       after do
-        set_return_date
-        self.save
+        rollback_state do
+          set_return_date
+          self.save
+        end
       end
       transitions from: :approved, to: :recording
     end

@@ -21,4 +21,7 @@ Devise.setup do |config|
   config.jwt do |jwt|
     jwt.secret = Rails.application.credentials[:jwt_secret]
   end
+  config.warden do |manager|
+    manager.failure_app = MyDeviseFailureApp
+  end
 end
