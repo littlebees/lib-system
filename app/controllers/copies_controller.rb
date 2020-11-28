@@ -1,8 +1,9 @@
 class CopiesController < ApplicationController
-  before_action :set_copy, only: [:show, :update, :destroy]
+  load_and_authorize_resource
+  
   # GET /copies
   def index
-    @copies = Copy.all
+    #@copies = Copy.all
 
     render json: @copies
   end
@@ -14,8 +15,8 @@ class CopiesController < ApplicationController
 
   # POST /copies
   def create
-    @copy = Copy.new(copy_params)
-
+    #@copy = Copy.new(copy_params)
+    @copy.book_id = params[:book_id]
     if @copy.save
       render json: @copy, status: :created, location: @copy
     else
@@ -37,12 +38,17 @@ class CopiesController < ApplicationController
     @copy.destroy
   end
 
-  private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_copy
-      @copy = Copy.find(params[:id])
-    end
+  def read_book
+    @copy.take_this_book!
+    render json: @copy
+  end
 
+  def put_it_back
+    @copy.put_it_back_to_shelf!
+    render json: @copy
+  end
+
+  private
     # Only allow a trusted parameter "white list" through.
     def copy_params
       params.fetch(:copy, {})

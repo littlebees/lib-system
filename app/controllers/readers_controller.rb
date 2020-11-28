@@ -1,15 +1,13 @@
 class ReadersController < ApplicationController
-  before_action :set_copy, only: [:read, :reserve, :borrow, :show, :take_reserved, :return_it]
-  before_action :set_reader, only: [:borrow, :take_reserved, :tickets]
+  before_action :authenticate_user!
+  before_action :load_reader
+  #load_and_authorize_resource :reader
+  load_and_authorize_resource :tickets, through: :reader, only: [:show]
+  load_and_authorize_resource :copy, id_param: :copy_id, parent: false, only: [:borrow, :take_reserved, :return_it]
 
   def show
-    tickets = @reader.tickets
-    render json: tickets
-  end
-
-  def read
-    @copy.take_this_book!
-    render json: @copy
+    #tickets = @reader.tickets
+    render json: @tickets
   end
 
   def borrow
@@ -27,15 +25,8 @@ class ReadersController < ApplicationController
     render json: @copy
   end
 
-  def tickets
-    render json: @reader.tickets
-  end
 private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_copy
-      @copy = Copy.find(params[:copy_id])
-    end
-    def set_reader
-      @reader = Reader.find(params[:id])
-    end
+  def load_reader
+    @reader = current_user.role
+  end
 end

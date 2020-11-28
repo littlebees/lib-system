@@ -1,10 +1,8 @@
 class BooksController < ApplicationController
-  before_action :set_book, only: [:show, :update, :destroy]
+  load_and_authorize_resource
 
   # GET /books
   def index
-    @books = Book.all
-
     render json: @books
   end
 
@@ -39,11 +37,6 @@ class BooksController < ApplicationController
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_book
-      @book = Book.find(params[:id])
-    end
-
     # Only allow a trusted parameter "white list" through.
     def book_params
       params.fetch(:book, {})
