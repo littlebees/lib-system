@@ -36,6 +36,7 @@ class CopiesController < ApplicationController
   # DELETE /copies/1
   def destroy
     @copy.destroy
+    render json: { status: true, msg: "#{params[:id]} has been deleted"}
   end
 
   def read_book

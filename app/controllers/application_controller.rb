@@ -11,7 +11,7 @@ class ApplicationController < ActionController::API
   end
 
   rescue_from ActiveRecord::RecordNotFound do |e|
-    render json: { status: false, msg: "not found" }
+    render json: { status: false, msg: "not found" }, status: 404
   end
   # https://github.com/waiting-for-dev/devise-jwt/wiki/Configuring-devise-for-APIs
 end

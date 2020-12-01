@@ -34,6 +34,7 @@ class BooksController < ApplicationController
   # DELETE /books/1
   def destroy
     @book.destroy
+    render json: { status: true, msg: "#{params[:id]} has been deleted"}
   end
 
   private

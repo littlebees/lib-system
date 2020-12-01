@@ -1,15 +1,16 @@
 FactoryBot.define do
   factory :ticket do
     pending
+    lending
 
     association :reader
     association :copy
 
-    trait :Reservation do
+    trait :reservation do
       type { "Reservation" }
     end
 
-    trait :Lending do
+    trait :lending do
       type { "Lending" }
     end
 

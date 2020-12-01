@@ -108,3 +108,7 @@ def expect_event(klass)
   c = klass.new
   return ->(cond) { expect(c).to cond }
 end
+
+def json
+  JSON.parse(response.body)
+end
