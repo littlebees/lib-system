@@ -45,5 +45,9 @@ FactoryBot.define do
     trait :waiting_to_be_classified do
       copy_state { "waiting_to_be_classified" }
     end
+
+    trait :returning do
+      copy_state { "returning" }
+    end
   end
 end
