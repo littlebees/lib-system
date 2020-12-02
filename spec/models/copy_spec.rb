@@ -52,9 +52,17 @@ RSpec.describe Copy, type: :model do
       context "lent" do
         subject { Copy.new copy_state: "lent" }
 
-        include_examples "all allowed events", [:mark_lost, :mark_over_due, :get_lent_book]
+        include_examples "all allowed events", [:mark_lost, :mark_over_due, :return_this_book]
 
-        include_examples "all allowed states", [:lost, :waiting_to_be_classified, :over_due]
+        include_examples "all allowed states", [:lost, :returning, :over_due]
+      end
+
+      context "returning" do
+        subject { Copy.new copy_state: "returning" }
+
+        include_examples "all allowed events", [:get_lent_book]
+
+        include_examples "all allowed states", [:waiting_to_be_classified]
       end
 
       context "waiting_to_be_classified" do
@@ -68,9 +76,9 @@ RSpec.describe Copy, type: :model do
       context "over_due" do
         subject { Copy.new copy_state: "over_due" }
 
-        include_examples "all allowed events", [:mark_lost, :get_lent_book]
+        include_examples "all allowed events", [:mark_lost, :return_this_book]
 
-        include_examples "all allowed states", [:lost, :waiting_to_be_classified]
+        include_examples "all allowed states", [:lost, :returning]
       end
 
       context "lost" do
@@ -245,19 +253,34 @@ RSpec.describe Copy, type: :model do
         end
       end
 
-      context "get_lent_book" do
+      context "return_this_book" do
         subject! do
           args = {}
           c = Copy.create copy_state: "lent", book: @b
+          @t = Lending.create copy: c, reader: @r, ticket_state: "approved"
+          c.return_this_book(args)
+          c
+        end
+
+        it "change state: [lent, over_due] => waiting_to_be_classified" do
+          @expect_event_in_Copy[transition_from(:lent).to(:returning).on_event(:return_this_book,{})]
+          @expect_event_in_Copy[transition_from(:over_due).to(:returning).on_event(:return_this_book,{})]
+        end
+
+      end
+
+      context "get_lent_book" do
+        subject! do
+          args = {}
+          c = Copy.create copy_state: "returning", book: @b
           @t = Lending.create copy: c, reader: @r, ticket_state: "approved"
           c.get_lent_book(args)
           c
         end
 
-        it "change state: [lent, over_due] => waiting_to_be_classified" do
+        it "change state: [returning] => waiting_to_be_classified" do
           Copy.any_instance.stub(:get_lent_book_after_cb)
-          @expect_event_in_Copy[transition_from(:lent).to(:waiting_to_be_classified).on_event(:get_lent_book,{})]
-          @expect_event_in_Copy[transition_from(:over_due).to(:waiting_to_be_classified).on_event(:get_lent_book,{})]
+          @expect_event_in_Copy[transition_from(:returning).to(:waiting_to_be_classified).on_event(:get_lent_book,{})]
         end
 
 	      it "ticket state should be recording" do
