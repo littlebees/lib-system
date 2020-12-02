@@ -1,19 +1,37 @@
 require 'rails_helper'
+require 'devise/jwt/test_helpers'
 
 RSpec.describe "Users", type: :request do
+  let!(:user) { create :user }
+  let(:base_header) { { 'Accept' => 'application/json', 'Content-Type' => 'application/json' } }
+  let(:header) { Devise::JWT::TestHelpers.auth_headers(base_header, user) }
+  describe "POST /sign_in" do
+    context "valid account" do
+      before { post "/sign_in", params: { user: { email: user.email, password: user.password } }, as: :json}
+      it "returns http success" do
+        expect(json["token"]).not_to be_empty
+      end
+    end
 
-  describe "GET /login" do
-    it "returns http success" do
-      get "/users/login"
-      expect(response).to have_http_status(:success)
+    context "wrong password" do
+      before { post "/sign_in", params: { user: { email: user.email, password: user.password+"123" } }, as: :json}
+      it "returns http success" do
+        expect(json["msg"]).to match('Invalid Email or password.')
+      end
+    end
+
+    context "invalid account" do
+      before { post "/sign_in", params: { user: { email: user.email+"123", password: user.password } }, as: :json}
+      it "returns http success" do
+        expect(json["msg"]).to match('Invalid Email or password.')
+      end
     end
   end
 
-  describe "GET /logout" do
+  describe "DELETE /sign_out" do
+    before { delete "/sign_out", headers: header }
     it "returns http success" do
-      get "/users/logout"
-      expect(response).to have_http_status(:success)
+      expect(json["msg"]).to match("successfully signed out")
     end
   end
-
 end

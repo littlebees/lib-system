@@ -11,6 +11,7 @@ class Ability
       
       if user.role_type == "Reader"
         can [:borrow, :take_reserved, :return_it], Copy
+        can :manage, Reader , id: user.role.id
       elsif user.role_type == "Librarian"
         can :manage, [Book, Copy, Ticket]
         can :manage, User

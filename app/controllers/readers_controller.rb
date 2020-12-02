@@ -1,13 +1,11 @@
 class ReadersController < ApplicationController
   before_action :authenticate_user!
   before_action :load_reader
-  #load_and_authorize_resource :reader
-  load_and_authorize_resource :tickets, through: :reader, only: [:show]
   load_and_authorize_resource :copy, id_param: :copy_id, parent: false, only: [:borrow, :take_reserved, :return_it]
 
   def show
-    #tickets = @reader.tickets
-    render json: @tickets
+    authorize! :show,  @reader
+    render json: @reader.tickets
   end
 
   def borrow
@@ -28,5 +26,8 @@ class ReadersController < ApplicationController
 private
   def load_reader
     @reader = current_user.role
+  end
+  def load_tickets
+    @tickets = @reader.tickets
   end
 end
