@@ -1,10 +1,10 @@
 class ReadersController < ApplicationController
   before_action :authenticate_user!
-  before_action :load_reader
+
+  load_and_authorize_resource :role, singleton: true, through: :current_user, instance_name: :reader
   load_and_authorize_resource :copy, id_param: :copy_id, parent: false, only: [:borrow, :take_reserved, :return_it]
 
   def show
-    authorize! :show,  @reader
     render json: @reader.tickets
   end
 
