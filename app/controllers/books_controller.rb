@@ -3,12 +3,12 @@ class BooksController < ApplicationController
 
   # GET /books
   def index
-    render json: @books
+    render json: { data: @books }
   end
 
   # GET /books/1
   def show
-    render json: @book
+    render json: { data: @book }
   end
 
   # POST /books
@@ -16,25 +16,25 @@ class BooksController < ApplicationController
     @book = Book.new(book_params)
 
     if @book.save
-      render json: @book, status: :created, location: @book
+      render json: { data: @book }, status: 201, location: @book
     else
-      render json: @book.errors, status: :unprocessable_entity
+      render json: { msg: @book.errors }, status: 503
     end
   end
 
   # PATCH/PUT /books/1
   def update
     if @book.update(book_params)
-      render json: @book
+      render json: { data: @book }
     else
-      render json: @book.errors, status: :unprocessable_entity
+      render json: { msg: @book.errors }, status: 503
     end
   end
 
   # DELETE /books/1
   def destroy
     @book.destroy
-    render json: { status: true, msg: "#{params[:id]} has been deleted"}
+    render json: { msg: "#{params[:id]} has been deleted"}
   end
 
   private

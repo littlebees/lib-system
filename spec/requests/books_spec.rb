@@ -14,7 +14,7 @@ RSpec.describe "/books", type: :request do
     before { get "/books" }
     it "get all books" do
       expect(response).to be_successful
-      expect(json.size).to eq(5)
+      expect(json["data"].size).to eq(5)
     end
   end
 
@@ -25,7 +25,7 @@ RSpec.describe "/books", type: :request do
       let(:book_id) { books.first.id }
       it "return book data'" do
         expect(response).to be_successful
-        expect(json["id"]).to eq(book_id)
+        expect(json["data"]["id"]).to eq(book_id)
       end
     end
 
@@ -45,7 +45,7 @@ RSpec.describe "/books", type: :request do
         before { post "/books", headers: liber_header, params: valid_attrs }
 
         it 'return created book' do
-          expect(json["id"]).to eq(books.size+1)
+          expect(json["data"]["id"]).to eq(books.size+1)
         end
       end
 

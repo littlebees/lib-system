@@ -9,18 +9,18 @@ class LibrariansController < ApplicationController
   def show
     authorize! :show, :librarian
     tickets = Ticket.all
-    render json: tickets
+    render json: { data: tickets }
   end
 
   def get_lent_book
     @copy.get_lent_book!
-    render json: @copy
+    render json: { data: @copy }
   end
 
   def lend_this_book
     #authorize! :lend_this_book, @copy
     @copy.lend_this_book! reader: @reader
-    render json: @copy
+    render json: { data: @copy }
   end
 
   def classify_books

@@ -15,7 +15,7 @@ RSpec.describe "/copies", type: :request do
     before { get "/books/#{book.id}/copies/" }
     it "get all copies" do
       expect(response).to be_successful
-      expect(json.size).to eq(5)
+      expect(json["data"].size).to eq(5)
     end
   end
 
@@ -26,7 +26,7 @@ RSpec.describe "/copies", type: :request do
       let(:copy_id) { copies.first.id }
       it "return book data'" do
         expect(response).to be_successful
-        expect(json["id"]).to eq(copy_id)
+        expect(json["data"]["id"]).to eq(copy_id)
       end
     end
 
@@ -46,7 +46,7 @@ RSpec.describe "/copies", type: :request do
         before { post "/books/#{book.id}/copies/", headers: liber_header, params: valid_attrs }
 
         it 'return created copy' do
-          expect(json["id"]).to eq(copies.size+1)
+          expect(json["data"]["id"]).to eq(copies.size+1)
         end
       end
 
@@ -104,7 +104,6 @@ RSpec.describe "/copies", type: :request do
       context "with valid copy_id" do
         let(:copy_id) { 1 }
         it 'return success msg' do
-          p json
           expect(json["msg"]).to match("#{copy_id} has been deleted")
         end
       end
@@ -132,8 +131,8 @@ RSpec.describe "/copies", type: :request do
     before { patch "/copies/#{copy.id}/read_book" }
     it "copy state should be read_by_someone" do
       expect(response).to be_successful
-      expect(json["id"]).to eq(copy.id)
-      expect(json["copy_state"]).to eq("read_by_someone")
+      expect(json["data"]["id"]).to eq(copy.id)
+      expect(json["data"]["copy_state"]).to eq("read_by_someone")
     end
   end
 
@@ -141,10 +140,9 @@ RSpec.describe "/copies", type: :request do
     let!(:copy) { create :copy, :read_by_someone }
     before { patch "/copies/#{copy.id}/put_it_back" }
     it "copy state should be on_shelf" do
-      p json
       expect(response).to be_successful
-      expect(json["id"]).to eq(copy.id)
-      expect(json["copy_state"]).to eq("on_shelf")
+      expect(json["data"]["id"]).to eq(copy.id)
+      expect(json["data"]["copy_state"]).to eq("on_shelf")
     end
   end
 end
