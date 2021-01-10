@@ -1,0 +1,46 @@
+name: Rails
+on: push
+
+jobs:
+  verify:
+    name: Build
+    runs-on: ubuntu-latest
+
+    services:
+        db:
+          image: mariadb
+          env:
+            MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            MYSQL_DATABASE: mydb_test
+          ports: ["3306:3306"]
+          options: >-
+            --health-cmd "mysqladmin ping"
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 5
+
+    steps:
+      - name: Install dependencies
+        run: |
+          sudo apt-get -yqq install libmariadbclient-dev
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 2.7.2
+          bundler-cache: true
+      - name: bundle install
+        run: bundle install --jobs 4 --retry 3
+      - name: generate secret
+        run: |
+          sed -i "s/REPLACE_WITH_SECRET/'$(bundle exec rake secret)'/g" config/initializers/devise.rb
+      - name: Setup test database & Run tests
+        env:
+          RAILS_ENV: test
+        run: |
+          cp config/database.yml.actions config/database.yml
+          bundle exec rake db:drop db:create db:migrate
+      - name: Run tests
+        env:
+          RAILS_ENV: test
+        run: bundle exec rspec

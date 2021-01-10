@@ -12,38 +12,38 @@
 
 ActiveRecord::Schema.define(version: 2020_11_27_160849) do
 
-  create_table "books", force: :cascade do |t|
+  create_table "books", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "copies", force: :cascade do |t|
-    t.integer "book_id", null: false
+  create_table "copies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "book_id", null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.string "copy_state"
     t.index ["book_id"], name: "index_copies_on_book_id"
   end
 
-  create_table "jwt_blacklists", force: :cascade do |t|
+  create_table "jwt_blacklists", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "jti", null: false
     t.datetime "exp", null: false
     t.index ["jti"], name: "index_jwt_blacklists_on_jti"
   end
 
-  create_table "librarians", force: :cascade do |t|
+  create_table "librarians", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "readers", force: :cascade do |t|
+  create_table "readers", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
   end
 
-  create_table "tickets", force: :cascade do |t|
-    t.integer "reader_id", null: false
-    t.integer "copy_id", null: false
+  create_table "tickets", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "reader_id", null: false
+    t.bigint "copy_id", null: false
     t.datetime "due_date"
     t.datetime "return_date"
     t.string "ticket_state"
@@ -54,9 +54,9 @@ ActiveRecord::Schema.define(version: 2020_11_27_160849) do
     t.index ["reader_id"], name: "index_tickets_on_reader_id"
   end
 
-  create_table "users", force: :cascade do |t|
+  create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "role_type"
-    t.integer "role_id"
+    t.bigint "role_id"
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"

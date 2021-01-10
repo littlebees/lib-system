@@ -2,10 +2,10 @@ require 'rails_helper'
 require 'devise/jwt/test_helpers'
 
 RSpec.describe "Librarians", type: :request do
-  let!(:a_reader) { create :user, :as_reader }
-  let(:reader_header) { Devise::JWT::TestHelpers.auth_headers({ 'Accept' => 'application/json', 'Content-Type' => 'application/json' }, a_reader) }
-  let!(:a_liber) { create :user, :as_librarian }
-  let(:liber_header) { Devise::JWT::TestHelpers.auth_headers({ 'Accept' => 'application/json', 'Content-Type' => 'application/json' }, a_liber) }
+  let!(:reader) { create :user, :as_reader }
+  let!(:reader_header) { Devise::JWT::TestHelpers.auth_headers({ 'Accept' => 'application/json', 'Content-Type' => 'application/json' }, reader) }
+  let!(:liber) { create :user, :as_librarian }
+  let!(:liber_header) { Devise::JWT::TestHelpers.auth_headers({ 'Accept' => 'application/json', 'Content-Type' => 'application/json' }, liber) }
   describe "GET /show" do
     let!(:tickets) { create_list :ticket, 5 }
     before { get "/librarian", headers: who }
@@ -53,8 +53,8 @@ RSpec.describe "Librarians", type: :request do
 
   describe "PATCH /lend_this_book" do
     let!(:copy) { create :copy, :waiting_for_approvment }
-    let!(:ticket) { create :ticket, :lending, :pending, copy_id: copy.id, reader_id: a_reader.id }
-    before { patch "/librarian/lend_this_book?", headers: who, params: { copy_id: copy.id, reader_id: a_reader.id }, as: :json }
+    let!(:ticket) { create :ticket, :lending, :pending, copy_id: copy.id, reader_id: Reader.first.id } # WHY i cant use reader.id here!!?? when use mysql to test
+    before { patch "/librarian/lend_this_book?", headers: who, params: { copy_id: copy.id, reader_id: Reader.first.id }, as: :json }
     
     context 'is librarian' do
         let(:who) { liber_header }
@@ -92,9 +92,7 @@ RSpec.describe "Librarians", type: :request do
 
     context 'not librarian' do
       let(:who) { reader_header }
-      xit 'reject' do
-        expect(json["msg"]).to match('You are not authorized to access this page.')
-      end
+      it 'reject'
     end
   end
 end
