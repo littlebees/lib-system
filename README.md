@@ -1,10 +1,23 @@
 # README
 
-## TODO Ver1
-1. finish the busness logic of ticket & copy
-2. write a test for both of them
-3. add controll access (cancancan)
+## Simple Library API Server
 
-## TODO Ver2
+### Gems
+
+* devise
+    * manage accounts
+* devise-jwt
+    * enable devise to support jwt
+* aasm
+    * finite state machine
+* cancancan
+    * authorize resources & controller
+* rspec
+    * model test & request test
+* factory_bot
+    * to build/create model easily
+
+## TODO
 1. Add frontend framework
-2. Finish Ver2 functions, and update this TODO
+2. swagger
+3. RuboCop
