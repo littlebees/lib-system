@@ -16,7 +16,7 @@ RSpec.describe "Readers", type: :request do
         #let!(:tickets) { create_list :ticket, 5 } cant place this line in HERE!???
         let(:who) { reader_header }
         it 'return created copy' do
-          expect(json.size).to eq(tickets.size)
+          expect(json["data"].size).to eq(tickets.size)
         end
     end
 
@@ -37,8 +37,8 @@ RSpec.describe "Readers", type: :request do
       context "right applicant" do
         let(:who) { reader_header }
         it 'copy_state should be waiting_for_approvment' do
-          expect(json["id"]).to eq(copy.id)
-          expect(json["copy_state"]).to eq("waiting_for_approvment")
+          expect(json["data"]["id"]).to eq(copy.id)
+          expect(json["data"]["copy_state"]).to eq("waiting_for_approvment")
         end
         it 'ticket_state should be recording' do
           #expect(ticket.ticket_state).to eq("recording")
@@ -69,8 +69,8 @@ RSpec.describe "Readers", type: :request do
     context 'is reader' do
         let(:who) { reader_header }
         it 'copy_state should be waiting_for_approvment' do
-          expect(json["id"]).to eq(copy.id)
-          expect(json["copy_state"]).to eq("waiting_for_approvment")
+          expect(json["data"]["id"]).to eq(copy.id)
+          expect(json["data"]["copy_state"]).to eq("waiting_for_approvment")
         end
         it 'ticket_state should be approved' do
           #expect(ticket.ticket_state).to eq("approved")

@@ -5,12 +5,12 @@ class CopiesController < ApplicationController
   def index
     #@copies = Copy.all
 
-    render json: @copies
+    render json: { data: @copies }
   end
 
   # GET /copies/1
   def show
-    render json: @copy
+    render json: { data: @copy }
   end
 
   # POST /copies
@@ -18,35 +18,35 @@ class CopiesController < ApplicationController
     #@copy = Copy.new(copy_params)
     @copy.book_id = params[:book_id]
     if @copy.save
-      render json: @copy, status: :created, location: @copy
+      render json: { data: @copy }, status: 201, location: @copy
     else
-      render json: @copy.errors, status: :unprocessable_entity
+      render json: { msg: @copy.errors }, status: 503
     end
   end
 
   # PATCH/PUT /copies/1
   def update
     if @copy.update(copy_params)
-      render json: @copy
+      render json: { data: @copy }
     else
-      render json: @copy.errors, status: :unprocessable_entity
+      render json: { msg: @copy.errors }, status: 503
     end
   end
 
   # DELETE /copies/1
   def destroy
     @copy.destroy
-    render json: { status: true, msg: "#{params[:id]} has been deleted"}
+    render json: { msg: "#{params[:id]} has been deleted" }
   end
 
   def read_book
     @copy.take_this_book!
-    render json: @copy
+    render json: { data: @copy }
   end
 
   def put_it_back
     @copy.put_it_back_to_shelf!
-    render json: @copy
+    render json: { data: @copy }
   end
 
   private

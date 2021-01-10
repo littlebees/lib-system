@@ -33,9 +33,8 @@ class Ticket < ApplicationRecord
     end
   end
 
-private
   def set_due_date
-    fail NotImplementedError, "subclass should implement this method!"
+      fail NotImplementedError, "subclass should implement this method!"
   end
 
   def set_return_date
