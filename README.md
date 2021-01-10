@@ -1,5 +1,3 @@
-# README
-
 ## Simple Library API Server
 
 ### Gems
