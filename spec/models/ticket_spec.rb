@@ -63,10 +63,10 @@ RSpec.describe Ticket, type: :model do
         end
 
         it "set due date" do
-          now = DateTime.now
+          now = DateTime.now.utc
           allow(subject).to receive(:set_due_date) { subject.due_date = now }
           subject.approve
-          expect(subject.due_date).to eq(now)
+          expect(subject.due_date.to_date).to eq(now.to_date)
         end
       end
 

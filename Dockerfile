@@ -16,5 +16,6 @@ RUN bundle install
 FROM install_gems
 COPY . /app
 WORKDIR /app
+RUN sed -i "s/REPLACE_WITH_SECRET/'$(rake secret)'/g" config/initializers/devise.rb
 # The connection was reset
 CMD ["s", "--binding", "0.0.0.0"]

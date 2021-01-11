@@ -19,7 +19,7 @@ Devise.setup do |config|
   config.reset_password_within = 6.hours
   config.sign_out_via = :delete
   config.jwt do |jwt|
-    jwt.secret = Rails.application.credentials[:jwt_secret]
+    jwt.secret = REPLACE_WITH_SECRET
   end
   config.warden do |manager|
     manager.failure_app = MyDeviseFailureApp

@@ -15,6 +15,10 @@
 * factory_bot
     * to build/create model easily
 
+### CI
+
+github actions
+
 ## TODO
 1. Add frontend framework
 2. swagger
